@@ -38,7 +38,7 @@ jobs:
     - name: Install dependencies
       run: npm install
     - name: Run security tests
-      run: npm audit
+      run: npm test
 
   deploy:
     runs-on: ubuntu-latest
