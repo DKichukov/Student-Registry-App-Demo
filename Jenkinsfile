@@ -8,20 +8,19 @@ pipeline {
             }
         }
 
-        stage('Install Node.js on Debian') {
+        stage('Install Node.js on Debian (with sudo)') {
             steps {
                 sh '''
                     # Install curl if not present
                     if ! command -v curl > /dev/null; then
-                        apt-get update
-                        apt-get install -y curl
+                        sudo apt-get update
+                        sudo apt-get install -y curl
                     fi
 
-                    # Add Node.js 18.x from NodeSource
-                    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-                    apt-get install -y nodejs
+                    # Add NodeSource and install Node.js 18.x
+                    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                    sudo apt-get install -y nodejs
 
-                    # Confirm installation
                     node -v
                     npm -v
                 '''
