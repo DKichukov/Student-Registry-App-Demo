@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        NODE_VERSION = '20.14.0'
+        INSTALL_DIR = "${env.HOME}/local/node-v${NODE_VERSION}"
+        PATH = "${env.HOME}/local/node-v${NODE_VERSION}/bin:${env.PATH}"
+    }
+
     stages {
         stage('Checkout the repository') {
             steps {
@@ -8,21 +14,21 @@ pipeline {
             }
         }
 
-        stage('Install Node.js on Debian (with sudo)') {
+        stage('Install Node.js (non-root)') {
             steps {
                 sh '''
-                    # Install curl if not present
-                    if ! command -v curl > /dev/null; then
-                        sudo apt-get update
-                        sudo apt-get install -y curl
-                    fi
+                    set -e
 
-                    # Add NodeSource and install Node.js 18.x
-                    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-                    sudo apt-get install -y nodejs
+                    # Create target install directory
+                    mkdir -p "$INSTALL_DIR"
 
-                    node -v
-                    npm -v
+                    # Download and extract Node.js tarball
+                    curl -fsSL https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz \
+                        | tar -xz --strip-components=1 -C "$INSTALL_DIR"
+
+                    # Verify
+                    "$INSTALL_DIR/bin/node" -v
+                    "$INSTALL_DIR/bin/npm" -v
                 '''
             }
         }
